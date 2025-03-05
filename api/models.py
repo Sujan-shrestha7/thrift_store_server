@@ -24,3 +24,13 @@ class admin(models.Model):
     class Meta:
         db_table = 'admin'
 
+class products(models.Model):
+    id = models.IntegerField(primary_key=True, null=False)
+    name = models.CharField(max_length=100, null=False, blank=False)
+    category =  models.CharField(max_length=100, null=False, blank=False)
+    usedtime = models.CharField(max_length=50, null=False)
+    description =  models.CharField(max_length=255)
+
+    class Meta:
+        db_table = 'products'
+
