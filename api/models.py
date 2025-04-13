@@ -19,7 +19,6 @@ class Users(models.Model):
     def __str__(self):
         return f"Name: {self.fullname}, Address: {self.address}, Contact: {self.contact}"
 
-
 class Admin(models.Model):
     fullname = models.CharField(max_length=50, null=False, blank=False)
     email =  models.CharField(max_length=100,unique=True, null=False,
