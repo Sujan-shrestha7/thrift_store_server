@@ -49,18 +49,15 @@ class LoginView(APIView):
         if user and check_password(password, user.password):  # Secure password check
             print("Password matched")
 
-            # Create a fake Django User object for JWT
-            class NewUser:
-                id = user.id
-
-            refresh = RefreshToken.for_user(NewUser()) 
+            refresh = RefreshToken.for_user(user) 
+            serialized_user = UserSerializer(user)
             return Response({
+                "data":serialized_user.data,
                 "access_token": str(refresh.access_token),
                 "refresh_token": str(refresh)
             }, status=status.HTTP_200_OK)
 
         return Response({"message": "Invalid credentials!"}, status=status.HTTP_400_BAD_REQUEST)
-
 # User Logout
 class LogoutView(APIView):
     def post(self, request):
