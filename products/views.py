@@ -3,15 +3,18 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework_simplejwt.tokens import RefreshToken
-from django.contrib.auth.hashers import check_password
 from .models import Products
 from .serializer import ProductSerializer
 
 # Get All Users
 @api_view(['GET'])
 def get_products(request):
-    users = Products.objects.all()
-    serializedData = ProductSerializer(users, many=True).data
+    userid= request.query_params.get('userid')
+    if userid is not None:
+        products = Products.objects.filter(userid=userid)
+    else:
+        products = Products.objects.all()
+    serializedData = ProductSerializer(products, many=True).data
     return Response(serializedData)
 
 # Create a New User
