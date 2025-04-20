@@ -1,6 +1,7 @@
 from django.db import models
 
 class Cart(models.Model):
+    
     name = models.CharField(max_length=100, null=False, blank=False)
     category =  models.CharField(max_length=100, null=False, blank=False)
     price = models.DecimalField(max_digits=5,decimal_places=2, null=True)
