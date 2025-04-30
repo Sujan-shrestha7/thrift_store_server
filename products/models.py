@@ -8,6 +8,10 @@ class Products(models.Model):
     usedtime = models.CharField(max_length=50)
     description = models.TextField()
     userid = models.ForeignKey(Users, related_name='products', on_delete=models.CASCADE, null=True, blank=True)
+    image = models.ImageField(upload_to='product_images/', null=True, blank=True)
 
     class Meta:
         db_table = 'products'
+    
+    def __str__(self):
+        return f"name:{self.name}, category:{self.category}, price:{self.price}, usedtime:{self.usedtime}, description:{self.description}, userid:{self.userid}, image:{self.image}"
