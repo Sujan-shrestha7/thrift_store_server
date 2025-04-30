@@ -6,7 +6,6 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from .models import Products
 from .serializer import ProductSerializer
 
-# Get All Users
 @api_view(['GET'])
 def get_products(request):
     userid= request.query_params.get('userid')
@@ -17,7 +16,6 @@ def get_products(request):
     serializedData = ProductSerializer(products, many=True).data
     return Response(serializedData)
 
-# Create a New User
 @api_view(['POST'])
 def create_products(request):
     data = request.data
