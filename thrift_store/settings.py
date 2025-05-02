@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     # 'api',
     'users',
     'cart',
+    'category',
     'c_admin',
     'orders',
     'products',
