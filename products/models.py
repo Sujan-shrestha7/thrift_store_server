@@ -14,4 +14,4 @@ class Products(models.Model):
         db_table = 'products'
     
     def __str__(self):
-        return f"name:{self.name}, category:{self.category}, price:{self.price}, usedtime:{self.usedtime}, description:{self.description}, userid:{self.userid}, image:{self.image}"
+        return f"id:{self.id},name:{self.name}, category:{self.category}, price:{self.price}, usedtime:{self.usedtime}, description:{self.description}, userid:{self.userid}, image:{self.image}"
