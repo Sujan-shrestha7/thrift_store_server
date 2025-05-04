@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'cart',
     'category',
     'c_admin',
+    'school',
     'orders',
     'products',
     'rest_framework',
