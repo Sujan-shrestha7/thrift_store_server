@@ -23,3 +23,16 @@ class Student(models.Model):
     
     def __str__(self):
         return (f"fullname: {self.fullname},email: {self.email}, class: {self.student_class}, section: {self.section}")
+
+
+class Assignment(models.Model):
+    id = models.AutoField(primary_key=True)
+    title = models.CharField(max_length=255)
+    description = models.TextField(blank=True)
+    file = models.FileField(upload_to='assignments/', null=True, blank=True)
+    homework = models.TextField(blank=True)
+    assigned_class = models.CharField(max_length=100)
+    date = models.DateField()
+
+    def __str__(self):
+        return self.title
