@@ -3,53 +3,53 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework_simplejwt.tokens import RefreshToken
-from django.contrib.auth.hashers import check_password
-from .models import Users
-from .serializer import UserSerializer
+from django.contrib.auth.hashers import make_password, check_password
+from .models import Seller
+from .serializer import SellerSerializer
 
-# Get All Users
+# Get All Sellers
 @api_view(['GET'])
-def get_users(request):
-    users = Users.objects.all()
-    serializedData = UserSerializer(users, many=True).data
+def get_sellers(request):
+    sellers = Seller.objects.all()
+    serializedData = SellerSerializer(sellers, many=True).data
     return Response(serializedData)
 
-# User Registration
-class RegisterView(APIView):
+# Seller Registration
+class RegisterSellerView(APIView):
     def post(self, request):
         data = request.data
-        serializer = UserSerializer(data=data)
+        data['password'] = make_password(data.get('password'))
+        serializer = SellerSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
             return Response({
-                "message": "User Created Successfully!",
+                "message": "Seller Created Successfully!",
                 "status": True,
                 "data": serializer.data
             }, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-# User Login
-class LoginView(APIView):
+# Seller Login
+class LoginSellerView(APIView):
     def post(self, request):
         data = request.data
-        contact = data.get('contact') 
+        email = data.get('email')
         password = data.get('password')
-        user = Users.objects.filter(contact=contact).first()
+        seller = Seller.objects.filter(email=email).first()
 
-        if user and check_password(password, user.password):  # Secure password check
-            print("Password matched")
-
-            refresh = RefreshToken.for_user(user) 
-            serialized_user = UserSerializer(user)
+        if seller and check_password(password, seller.password):
+            refresh = RefreshToken.for_user(seller)
+            serialized_seller = SellerSerializer(seller)
             return Response({
-                "data":serialized_user.data,
+                "data": serialized_seller.data,
                 "access_token": str(refresh.access_token),
                 "refresh_token": str(refresh)
             }, status=status.HTTP_200_OK)
 
         return Response({"message": "Invalid credentials!"}, status=status.HTTP_400_BAD_REQUEST)
-# User Logout
-class LogoutView(APIView):
+
+# Seller Logout
+class LogoutSellerView(APIView):
     def post(self, request):
         try:
             refresh_token = request.data.get("refresh_token")

@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'school',
     'orders',
     'products',
+    'sellers',
     'rest_framework',
     'rest_framework_simplejwt',
     'corsheaders'
