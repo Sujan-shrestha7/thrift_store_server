@@ -8,9 +8,9 @@ from .serializer import ProductSerializer
 
 @api_view(['GET'])
 def get_products(request):
-    userid= request.query_params.get('userid')
-    if userid is not None:
-        products = Products.objects.filter(userid=userid)
+    sellerid= request.query_params.get('sellerid')
+    if sellerid is not None:
+        products = Products.objects.filter(sellerid=sellerid)
     else:
         products = Products.objects.all()
     serializedData = ProductSerializer(products, many=True).data

@@ -4,4 +4,4 @@ from .models import Seller
 class SellerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Seller
-        fields = ['full_name', 'address', 'contact', 'email', 'password']
+        fields = ['id','full_name', 'address', 'contact', 'email', 'password']

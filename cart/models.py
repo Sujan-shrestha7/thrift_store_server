@@ -1,9 +1,11 @@
 from django.db import models
 from users.models import Users
 from category.models import Category
+from sellers.models import Seller
 
 class Cart(models.Model):
     # userid = models.ForeignKey(Users, related_name='carts', on_delete=models.CASCADE, null=True, blank=True)
+    sellerid = models.ForeignKey(Seller, related_name='carts', on_delete=models.CASCADE, null=True, blank=True)
     userid = models.ForeignKey(Users, related_name='carts', on_delete=models.CASCADE, null=True, blank=True)
     name = models.CharField(max_length=100, null=False, blank=False)
     category = models.ForeignKey(Category, related_name="cart_category", on_delete=models.CASCADE, null=True)
