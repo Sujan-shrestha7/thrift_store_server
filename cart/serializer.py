@@ -6,7 +6,6 @@ class CartSerializers(serializers.ModelSerializer):
     category = serializers.PrimaryKeyRelatedField(queryset=Category.objects.all())
     cat_name = serializers.CharField(source='category.cat_name', read_only=True)
     
-    
     class Meta:
         model = Cart
-        fields = ['id','userid','sellerid','name', 'category', 'price','cat_name', 'usedtime', 'description']
+        fields = ['id','userid','sellerid','name', 'category', 'price','cat_name', 'usedtime', 'description','image']
