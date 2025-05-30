@@ -6,7 +6,11 @@ from .models import Orders
 
 @api_view(['GET'])
 def get_order(request):
-    order = Orders.objects.all()
+    sellerid= request.query_params.get('sellerid')
+    if sellerid is not None:
+        order = Orders.objects.filter(sellerid=sellerid)
+    else:
+        order = Orders.objects.all()
     serializer = OrdersSerializer(order, many=True)
     return Response(serializer.data)
 
