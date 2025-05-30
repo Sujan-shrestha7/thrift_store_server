@@ -16,6 +16,7 @@ class OrdersSerializer(serializers.ModelSerializer):
 
     product_name = serializers.CharField(source='cartid.name', read_only=True)
     product_price = serializers.CharField(source='cartid.price', read_only=True)
+    product_image = serializers.CharField(source='cartid.image', read_only=True)
     seller_name = serializers.CharField(source='sellerid.name', read_only=True)
 
     class Meta:
@@ -32,5 +33,6 @@ class OrdersSerializer(serializers.ModelSerializer):
             'product_price',
             'sellerid',
             'seller_name',
+            'product_image'
         ]
         read_only_fields = ['billno']
