@@ -1,6 +1,6 @@
 from django.db import models
 from users.models import Users
-from products.models import Products
+from cart.models import Cart
 from sellers.models import Seller
 
 # Create your models here.
@@ -9,7 +9,7 @@ class Orders(models.Model):
     billno = models.IntegerField(unique=True, blank=False)
     userid = models.ForeignKey(Users, on_delete=models.CASCADE, related_name='orders', null=True)
     sellerid = models.ForeignKey(Seller, on_delete=models.CASCADE, related_name='orders', null=True)
-    productid = models.ForeignKey(Products, on_delete=models.CASCADE, related_name='products', null=True)
+    cartid = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name='products', null=True)
 
     class Meta:
         db_table = 'orders'
@@ -26,4 +26,4 @@ class Orders(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"billno: {self.billno}, sellerid: {self.sellerid}, userid: {self.userid}, productid:{self.productid}"
+        return f"billno: {self.billno}, sellerid: {self.sellerid}, userid: {self.userid}, cartid:{self.cartid}"
