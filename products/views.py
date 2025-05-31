@@ -4,15 +4,24 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework_simplejwt.tokens import RefreshToken
 from .models import Products
+from django.db.models import Q
 from .serializer import ProductSerializer
 
 @api_view(['GET'])
 def get_products(request):
-    sellerid= request.query_params.get('sellerid')
+    sellerid = request.query_params.get('sellerid')
+    product_name = request.query_params.get('product')
+    
+    products = Products.objects.all()
+
+    if product_name:
+        products = products.filter(
+            Q(name__icontains=product_name) | Q(category__cat_name__icontains=product_name)
+        )
+    
     if sellerid is not None:
-        products = Products.objects.filter(sellerid=sellerid)
-    else:
-        products = Products.objects.all()
+        products = products.filter(sellerid=sellerid)
+
     serializedData = ProductSerializer(products, many=True).data
     return Response(serializedData)
 
