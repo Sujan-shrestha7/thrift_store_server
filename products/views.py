@@ -1,26 +1,29 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
-from .models import Products
 from django.db.models import Q
-from .serializer import ProductSerializer
+from django.contrib.auth.models import User
 
-# ================== Existing Views ==================
+from .models import Products, ProductInteraction
+from .serializer import ProductSerializer, ProductInteractionSerializer
+
+# =========== Product Views ==================
 
 @api_view(['GET'])
 def get_products(request):
     sellerid = request.query_params.get('sellerid')
     product_name = request.query_params.get('product')
-    
+
     products = Products.objects.all()
 
     if product_name:
         products = products.filter(
             Q(name__icontains=product_name) | Q(category__cat_name__icontains=product_name)
         )
-    
+
     if sellerid is not None:
         products = products.filter(sellerid=sellerid)
 
@@ -29,8 +32,7 @@ def get_products(request):
 
 @api_view(['POST'])
 def create_products(request):
-    data = request.data
-    serializer = ProductSerializer(data=data)
+    serializer = ProductSerializer(data=request.data)
     if serializer.is_valid():
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -41,8 +43,8 @@ def product_detail(request, pk):
     try:
         product = Products.objects.get(pk=pk)
     except Products.DoesNotExist:
-        return Response({"error": "product not found."}, status=status.HTTP_404_NOT_FOUND)
-    
+        return Response({"error": "Product not found."}, status=status.HTTP_404_NOT_FOUND)
+
     if request.method == 'DELETE':
         product.delete()
         return Response({"message": "Product deleted successfully!!"}, status=status.HTTP_204_NO_CONTENT)
@@ -51,11 +53,10 @@ def product_detail(request, pk):
         serializer = ProductSerializer(product, data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data, {"message": "updated successfully !"}, status=status.HTTP_200_OK)
+            return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-# ================== Content-Based Recommendation View ==================
-
+# ========= Content-Based Recommendation View ====================
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import linear_kernel
 
@@ -67,9 +68,8 @@ def recommend_products(request, product_id):
         if index is None:
             return Response({'error': 'Product not found for recommendation.'}, status=status.HTTP_404_NOT_FOUND)
 
-        # Build corpus from key fields
         documents = [
-            f"{p.name} {p.description} {p.usedtime} {p.category.cat_name if p.category else ''}"
+            f"{p.name} {p.description} {p.category.cat_name if p.category else ''}"
             for p in all_products
         ]
 
@@ -83,6 +83,53 @@ def recommend_products(request, product_id):
         similar_products = [all_products[i[0]] for i in similarity_scores]
         serialized_data = ProductSerializer(similar_products, many=True).data
         return Response(serialized_data, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+# =========== Collaborative Filtering (Implicit Feedback) ==========
+import numpy as np
+from scipy.sparse import csr_matrix
+from sklearn.metrics.pairwise import cosine_similarity
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def interact_product(request, product_id):
+    try:
+        product = Products.objects.get(pk=product_id)
+        ProductInteraction.objects.get_or_create(user=request.user, product=product)
+        return Response({'message': 'Interaction recorded successfully!'}, status=status.HTTP_200_OK)
+    except Products.DoesNotExist:
+        return Response({'error': 'Product not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def recommend_collaborative(request):
+    try:
+        interactions = ProductInteraction.objects.all()
+        users = list(User.objects.all())
+        products = list(Products.objects.all())
+
+        user_index = {user.id: idx for idx, user in enumerate(users)}
+        product_index = {product.id: idx for idx, product in enumerate(products)}
+
+        matrix = np.zeros((len(users), len(products)))
+
+        for interaction in interactions:
+            u_idx = user_index[interaction.user.id]
+            p_idx = product_index[interaction.product.id]
+            matrix[u_idx][p_idx] = 1
+
+        user_vector = matrix[user_index[request.user.id]]
+        product_matrix = csr_matrix(matrix.T)
+        scores = cosine_similarity(user_vector.reshape(1, -1), product_matrix.T).flatten()
+
+        top_indices = scores.argsort()[::-1]
+
+        recommended_ids = [products[i].id for i in top_indices if user_vector[i] == 0][:5]
+        recommended_products = Products.objects.filter(id__in=recommended_ids)
+        serialized = ProductSerializer(recommended_products, many=True).data
+        return Response(serialized, status=status.HTTP_200_OK)
 
     except Exception as e:
         return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

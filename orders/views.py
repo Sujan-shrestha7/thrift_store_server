@@ -7,7 +7,10 @@ from .models import Orders
 @api_view(['GET'])
 def get_order(request):
     sellerid= request.query_params.get('sellerid')
-    if sellerid is not None:
+    id =  request.query_params.get('id')
+    if id is not None:
+        order = Orders.objects.filter(id=  id)
+    elif sellerid is not None:
         order = Orders.objects.filter(sellerid=sellerid)
     else:
         order = Orders.objects.all()

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Products
+from .models import Products, ProductInteraction
 from category.models import Category
 from sellers.models import Seller
 
@@ -15,3 +15,8 @@ class ProductSerializer(serializers.ModelSerializer):
         fields = '__all__'
         # Optional explicit field list:
         # fields = ['id', 'name', 'category', 'category_name', 'price', 'usedtime', 'description', 'userid', 'user_address', 'image']
+
+class ProductInteractionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductInteraction
+        fields = '__all__'
