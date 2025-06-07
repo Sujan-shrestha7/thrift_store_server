@@ -13,6 +13,6 @@ urlpatterns = [
     path('products/create/', create_products, name='create_products'),
     path('products/<int:pk>/', product_detail, name='product_detail'),
     path('products/recommend/<int:product_id>/', recommend_products, name='content_recommendation'),
-    path('products/recommend-collaborative/', recommend_collaborative, name='collaborative_recommendation'),
-    path('products/interact/', interact_product, name='product_interact'),
+    # path('products/recommend-collaborative/', recommend_collaborative, name='collaborative_recommendation'),
+    # path('products/interact/', interact_product, name='product_interact'),
 ]

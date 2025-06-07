@@ -16,6 +16,7 @@ from .serializer import ProductSerializer, ProductInteractionSerializer
 def get_products(request):
     sellerid = request.query_params.get('sellerid')
     product_name = request.query_params.get('product')
+    products = Products.objects.filter(price__lte=5000)
 
     products = Products.objects.all()
 
@@ -78,7 +79,7 @@ def recommend_products(request, product_id):
         cosine_similarities = linear_kernel(tfidf_matrix, tfidf_matrix)
 
         similarity_scores = list(enumerate(cosine_similarities[index]))
-        similarity_scores = sorted(similarity_scores, key=lambda x: x[1], reverse=True)[1:6]  # Top 5
+        similarity_scores = sorted(similarity_scores, key=lambda x: x[1], reverse=True)[1:6]
 
         similar_products = [all_products[i[0]] for i in similarity_scores]
         serialized_data = ProductSerializer(similar_products, many=True).data
