@@ -16,9 +16,16 @@ from .serializer import ProductSerializer, ProductInteractionSerializer
 def get_products(request):
     sellerid = request.query_params.get('sellerid')
     product_name = request.query_params.get('product')
-    products = Products.objects.filter(price__lte=5000)
+    price_range = request.query_params.get('price')
 
     products = Products.objects.all()
+    # Convert price to float if provided
+    if price_range:
+        try:
+            price_range = float(price_range)
+            products = products.filter(price__lte=price_range)
+        except ValueError:
+            return Response({"error": "Invalid price value."}, status=400)
 
     if product_name:
         products = products.filter(
@@ -68,7 +75,6 @@ def recommend_products(request, product_id):
         index = next((i for i, p in enumerate(all_products) if p.id == product_id), None)
         if index is None:
             return Response({'error': 'Product not found for recommendation.'}, status=status.HTTP_404_NOT_FOUND)
-
         documents = [
             f"{p.name} {p.description} {p.category.cat_name if p.category else ''}"
             for p in all_products
